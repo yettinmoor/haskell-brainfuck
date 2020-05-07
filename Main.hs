@@ -53,9 +53,10 @@ parseInstruction =
                  , Dec    <$ char '-'
                  , Input  <$ char ','
                  , Output <$ char '.'
-                 , char '[' *>
-                     (Loop <$> some parseInstruction)
-                     <* char ']'
+                 , Loop   <$>
+                     (char '[' *>
+                     some parseInstruction
+                     <* char ']')
                  ]
 
 parseCode :: Parser [Instruction]
@@ -65,18 +66,20 @@ run :: Memory -> [Instruction] -> IO Memory
 run mem [] = return mem
 run mem (i:is) =
     case i of
-      ShiftL  -> run (shiftLeft            mem) is
-      ShiftR  -> run (shiftRight           mem) is
-      Inc     -> run (modifyMemory (+1)    mem) is
-      Dec     -> run (modifyMemory (+(-1)) mem) is
-      Input   -> getChar >>= \c -> run (modifyMemory (const (ord c)) mem) is
+      ShiftL  -> run (shiftLeft         mem) is
+      ShiftR  -> run (shiftRight        mem) is
+      Inc     -> run (modifyMemory succ mem) is
+      Dec     -> run (modifyMemory pred mem) is
+      Input   -> do
+          c <- ord <$> getChar
+          run (modifyMemory (const c) mem) is
       Output  -> do
           putChar . chr . readMemory $ mem
           run mem is
       Loop ls ->
           case (readMemory mem) of
             0 -> run mem is
-            _ -> run mem ls >>= \mem' -> run mem' (i:is)
+            _ -> run mem ls >>= flip run (i:is)
 
 main = do
     code <- getContents
