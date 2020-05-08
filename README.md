@@ -1,6 +1,6 @@
 # Brainfuck in Haskell!
 
-Enough said.
+> It is a truth universally acknowledged, that a single programmer in possession of a GitHub account must be in want of a Brainfuck interpreter repo. - Albert Einstein
 
 Reads from stdin, cat a file into it (see below).
 
