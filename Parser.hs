@@ -31,9 +31,9 @@ char c =
           (x:xs) | x == c -> Just (xs, x)
           _               -> Nothing
 
-eof :: Parser undefined -- use only with (<*)
+eof :: Parser ()
 eof =
     Parser $ \input ->
         case input of
-          "" -> Just ("", undefined)
+          [] -> Just (mempty ())
           _  -> Nothing
